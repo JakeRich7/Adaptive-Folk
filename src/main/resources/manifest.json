@@ -1,7 +1,7 @@
 {
-    "Group": "Example",
-    "Name": "ExamplePlugin",
-    "Version": "0.0.2",
+    "Group": "com.adaptiveFolk",
+    "Name": "Adaptive Folk",
+    "Version": "0.0.1",
     "Description": "An example plugin for HyTale!",
     "Authors": [
         {
@@ -17,6 +17,6 @@
         
     },
     "DisabledByDefault": false,
-    "Main": "org.example.plugin.ExamplePlugin",
+    "Main": "org.example.plugin.AdaptiveFolkPlugin",
     "IncludesAssetPack": true
 }
