@@ -1,6 +1,7 @@
 package com.adaptivefolk;
 
 import com.hypixel.hytale.logger.HytaleLogger;
+import com.hypixel.hytale.server.core.event.events.player.PlayerChatEvent;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 
@@ -21,6 +22,6 @@ public class PluginEntry extends JavaPlugin {
     @Override
     protected void setup() {
         LOGGER.atInfo().log("Setting up plugin " + this.getName());
-        this.getCommandRegistry().registerCommand(new Command(this.getName(), this.getManifest().getVersion().toString()));
+        this.getEventRegistry().registerGlobal(PlayerChatEvent.class, Chat::EchoPlayer);
     }
 }
