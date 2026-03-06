@@ -17,6 +17,6 @@
         
     },
     "DisabledByDefault": false,
-    "Main": "org.example.plugin.AdaptiveFolkPlugin",
+    "Main": "com.adaptivefolk.PluginEntry",
     "IncludesAssetPack": true
 }
