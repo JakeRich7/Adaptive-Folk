@@ -41,45 +41,4 @@ public class PluginEntry extends JavaPlugin {
         ComponentRegistryProxy<EntityStore> registry = this.getEntityStoreRegistry();
         registry.registerSystem(new SpawnFilter());
     }
-
-    public static class SpawnFilter extends RefSystem<EntityStore> {
-        @Nonnull
-        @Override
-        public Query<EntityStore> getQuery() {
-            return Query.any();
-        }
-
-        @Override
-        public void onEntityAdded(@Nonnull Ref<EntityStore> ref,
-                                  @Nonnull AddReason reason,
-                                  @Nonnull Store<EntityStore> store,
-                                  @Nonnull CommandBuffer<EntityStore> commandBuffer) {
-
-            if (reason != AddReason.SPAWN) {
-                return;
-            }
-
-            NPCEntity npc = (NPCEntity) store.getComponent(ref, NPCEntity.getComponentType());
-            if (npc != null) {
-                String entityType = npc.getRoleName();
-
-                if (entityType.startsWith("Kweebec")) {
-                    TransformComponent transform =
-                            (TransformComponent) store.getComponent(ref, TransformComponent.getComponentType());
-
-                    if (transform != null) {
-                        System.out.println("Spawned " + entityType + " at " + transform.getPosition());
-                        System.out.println(npc);
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void onEntityRemove(@Nonnull Ref<EntityStore> ref,
-                                   @Nonnull RemoveReason reason,
-                                   @Nonnull Store<EntityStore> store,
-                                   @Nonnull CommandBuffer<EntityStore> commandBuffer) {
-        }
-    }
 }
