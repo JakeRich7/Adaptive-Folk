@@ -22,7 +22,7 @@ public class Chat {
         System.out.println("Player is at: " + playerPos);
 
         world.execute(() -> {
-                KweebecUtils.updateKweebecPositions(world.getEntityStore(), KweebecRegistry.getAll(), playerPos);
+                KweebecUtils.updateKweebecPositions(world.getEntityStore(), KweebecRegistry.getAll(), playerPos, player.getHeadRotation());
         });
     }
 }
