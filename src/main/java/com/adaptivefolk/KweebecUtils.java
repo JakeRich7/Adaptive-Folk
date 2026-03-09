@@ -8,10 +8,12 @@ import com.hypixel.hytale.component.Ref;
 
 import java.util.Map;
 
+import static java.lang.Math.PI;
+
 public class KweebecUtils {
     private static final double CHAT_DISTANCE = 5.0;
-    private static final float FACING_THRESHOLD = 0.7f; // cosine of ~45° cone
     private static final int MAX_RETRIES = 3;
+    private static final int MAX_FACING = 90;
 
     public static void updateKweebecPositions(EntityStore store, Map<Ref<EntityStore>, KweebecData> kweebecs, Vector3d playerPos, Vector3f playerHeadRotation) {
         KweebecData closest = null;
@@ -42,15 +44,32 @@ public class KweebecUtils {
 
             // Proximity + facing check
             if (data.getPosition() != null) {
-                Vector3d toKweebec = data.getPosition().subtract(playerPos).normalize();
-                Vector3f headDir = playerHeadRotation.normalize();
+                // Vector from player to Kweebec in XZ
+                double dx = data.getPosition().x - playerPos.x;
+                double dz = data.getPosition().z - playerPos.z;
+                double distanceXZ = Math.sqrt(dx*dx + dz*dz);
 
-                double distance = data.getPosition().distanceTo(playerPos);
-                double dot = headDir.dot(toKweebec.toVector3f());
+                if (distanceXZ <= CHAT_DISTANCE) {
+                    double playerYaw = playerHeadRotation.y;
+                    double angleToKweebec = Math.atan2(dx, dz);
 
-                if (distance <= CHAT_DISTANCE && dot >= FACING_THRESHOLD && distance < closestDistance) {
-                    closestDistance = distance;
-                    closest = data;
+                    double delta = normalizeRadians(angleToKweebec - playerYaw);
+                    delta = ((delta + PI) % (2 * PI)) - PI;
+                    double absDelta = Math.abs(delta);
+                    double maxFacing = PI - (Math.toRadians(MAX_FACING) / 2);
+
+                    if (distanceXZ < closestDistance && absDelta >= maxFacing) {
+                        closestDistance = distanceXZ;
+                        closest = data;
+                    }
+
+                    // Debug
+//                    System.out.println("Kweebec at: " + data.getPosition());
+//                    System.out.println("PlayerPos: " + playerPos);
+//                    System.out.println("DistanceXZ: " + distanceXZ);
+                    System.out.println("AngleToKweebec: " + angleToKweebec);
+                    System.out.println("absDelta: " + absDelta);
+                    System.out.println("maxFacing: " + maxFacing);
                 }
             }
         }
@@ -58,5 +77,12 @@ public class KweebecUtils {
         if (closest != null) {
             System.out.println("Speaking to closest Kweebec: " + closest + " (Distance: " + closestDistance + ")");
         }
+    }
+
+    private static double normalizeRadians(double angle) {
+        angle = angle % (2 * PI);
+        if (angle > PI) angle -= 2 * PI;
+        if (angle < -PI) angle += 2 * PI;
+        return angle;
     }
 }
