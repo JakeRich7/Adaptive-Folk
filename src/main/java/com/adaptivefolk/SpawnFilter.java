@@ -35,13 +35,13 @@ public class SpawnFilter extends RefSystem<EntityStore> {
                     Vector3d pos = transform.getPosition();
                     Ref<EntityStore> reference = npc.getReference();
 
-                    System.out.println("Spawned/Loaded " + entityType + " at " + pos);
+//                    System.out.println("Spawned/Loaded " + entityType + " at " + pos);
 
                     KweebecRegistry.add(new KweebecData(reference, pos));
 
-                    KweebecRegistry.getAll().forEach((refer, data) -> {
-                        System.out.println("Ref: " + refer + " → " + data);
-                    });
+//                    KweebecRegistry.getAll().forEach((refer, data) -> {
+//                        System.out.println("Ref: " + refer + " → " + data);
+//                    });
                 }
             }
         }
