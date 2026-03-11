@@ -12,7 +12,6 @@ import static java.lang.Math.PI;
 
 public class KweebecUtils {
     private static final double CHAT_DISTANCE = 5.0;
-    private static final int MAX_RETRIES = 3;
     private static final int MAX_FACING = 90;
 
     public static void updateKweebecPositions(EntityStore store, Map<Ref<EntityStore>, KweebecData> kweebecs, Vector3d playerPos, Vector3f playerHeadRotation) {
@@ -52,6 +51,7 @@ public class KweebecUtils {
 
         if (closest != null) {
             System.out.println("Speaking to closest Kweebec: " + closest + " (Distance: " + closestDistance + ")");
+            System.out.println(closest);
         }
     }
 

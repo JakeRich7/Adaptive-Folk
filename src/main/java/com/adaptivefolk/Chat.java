@@ -19,7 +19,6 @@ public class Chat {
         World world = Universe.get().getWorld(worldUuid);
 
         player.sendMessage(Message.raw("I am echoing this message: " + message));
-//        System.out.println("Player is at: " + playerPos);
 
         world.execute(() -> {
                 KweebecUtils.updateKweebecPositions(world.getEntityStore(), KweebecRegistry.getAll(), playerPos, player.getHeadRotation());

@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 
 import javax.annotation.Nonnull;
+import java.util.UUID;
 
 public class SpawnFilter extends RefSystem<EntityStore> {
     @Nonnull
@@ -32,23 +33,17 @@ public class SpawnFilter extends RefSystem<EntityStore> {
                 TransformComponent transform =
                         (TransformComponent) store.getComponent(ref, TransformComponent.getComponentType());
 
-                UUIDComponent uuidComponent =
-                        (UUIDComponent) store.getComponent(ref, UUIDComponent.getComponentType());
 
                 if (transform != null) {
                     Vector3d pos = transform.getPosition();
                     Ref<EntityStore> reference = npc.getReference();
 
-//                    System.out.println("Spawned/Loaded " + entityType + " at " + pos);
+                    UUIDComponent uuidComponent =
+                            (UUIDComponent) store.getComponent(ref, UUIDComponent.getComponentType());
+                    UUID uuid = uuidComponent.getUuid();
 
-                    KweebecRegistry.add(new KweebecData(reference, pos));
-
-                    System.out.println("NPC UUID: " + uuidComponent.getUuid());
-                    System.out.println(npc);
-
-//                    KweebecRegistry.getAll().forEach((refer, data) -> {
-//                        System.out.println("Ref: " + refer + " → " + data);
-//                    });
+                    String kweebecName = KweebecNameGenerator.getRandomName();
+                    KweebecRegistry.add(new KweebecData(reference, pos, kweebecName, uuid));
                 }
             }
         }
