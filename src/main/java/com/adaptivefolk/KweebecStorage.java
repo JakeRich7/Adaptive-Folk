@@ -8,13 +8,13 @@ import java.nio.file.*;
 import java.util.UUID;
 
 public class KweebecStorage {
-    private static final Path KWEBEC_FOLDER = Paths.get("mods", "Kweebecs");
+    public static final Path KWEEBEC_FOLDER = Paths.get("mods", "Kweebecs");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     static {
         try {
-            if (!Files.exists(KWEBEC_FOLDER)) {
-                Files.createDirectories(KWEBEC_FOLDER);
+            if (!Files.exists(KWEEBEC_FOLDER)) {
+                Files.createDirectories(KWEEBEC_FOLDER);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -22,7 +22,7 @@ public class KweebecStorage {
     }
 
     public static KweebecProfile loadOrCreate(UUID uuid) {
-        Path file = KWEBEC_FOLDER.resolve(uuid.toString() + ".json");
+        Path file = KWEEBEC_FOLDER.resolve(uuid.toString() + ".json");
 
         if (Files.exists(file)) {
             try {
@@ -40,7 +40,7 @@ public class KweebecStorage {
     }
 
     public static void save(KweebecProfile profile) {
-        Path file = KWEBEC_FOLDER.resolve(profile.getUuid().toString() + ".json");
+        Path file = KWEEBEC_FOLDER.resolve(profile.getUuid().toString() + ".json");
         try {
             String json = GSON.toJson(profile);
             Files.writeString(file, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);

@@ -10,6 +10,8 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 
 import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.UUID;
 
 public class SpawnFilter extends RefSystem<EntityStore> {
@@ -63,5 +65,16 @@ public class SpawnFilter extends RefSystem<EntityStore> {
                                @Nonnull RemoveReason reason,
                                @Nonnull Store<EntityStore> store,
                                @Nonnull CommandBuffer<EntityStore> commandBuffer) {
+        KweebecData data = KweebecRegistry.get(ref);
+        if (data != null) {
+            KweebecRegistry.remove(ref);
+            UUID uuid = data.getUuid();
+            Path file = KweebecStorage.KWEEBEC_FOLDER.resolve(uuid.toString() + ".json");
+            try {
+                Files.deleteIfExists(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

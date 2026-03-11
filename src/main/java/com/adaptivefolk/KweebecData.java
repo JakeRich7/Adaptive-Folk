@@ -33,7 +33,7 @@ public class KweebecData {
 
     public String getName() { return name; }
 
-    public String getUuid() { return name; }
+    public UUID getUuid() { return uuid; }
 
     @Override
     public String toString() { return "KweebecData{name=" + name + ", uuid=" + uuid + ", position=" + position + "}"; }
