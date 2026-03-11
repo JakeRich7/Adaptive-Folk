@@ -42,7 +42,16 @@ public class SpawnFilter extends RefSystem<EntityStore> {
                             (UUIDComponent) store.getComponent(ref, UUIDComponent.getComponentType());
                     UUID uuid = uuidComponent.getUuid();
 
-                    String kweebecName = KweebecNameGenerator.getRandomName();
+                    KweebecStorage.KweebecProfile profile = KweebecStorage.loadOrCreate(uuid);
+
+                    if (profile.getName() == null || profile.getName().isEmpty()) {
+                        String randomName = KweebecNameGenerator.getRandomName();
+                        profile.setName(randomName);
+                        KweebecStorage.save(profile);
+                    }
+
+                    String kweebecName = profile.getName();
+
                     KweebecRegistry.add(new KweebecData(reference, pos, kweebecName, uuid));
                 }
             }
