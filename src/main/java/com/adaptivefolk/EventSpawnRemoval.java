@@ -1,80 +1,60 @@
-package com.adaptivefolk;  // same package as your plugin
+package com.adaptivefolk;
 
-import com.hypixel.hytale.component.*;
-import com.hypixel.hytale.component.query.Query;
-import com.hypixel.hytale.component.system.RefSystem;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
 
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.nio.file.*;
 import java.util.UUID;
 
-public class SpawnFilter extends RefSystem<EntityStore> {
-    @Nonnull
-    @Override
-    public Query<EntityStore> getQuery() {
-        return Query.any();
-    }
-
-    @Override
-    public void onEntityAdded(@Nonnull Ref<EntityStore> ref,
-                              @Nonnull AddReason reason,
-                              @Nonnull Store<EntityStore> store,
-                              @Nonnull CommandBuffer<EntityStore> commandBuffer) {
+public class EventSpawnRemoval {
+    public static void entitySpawn(Ref<EntityStore> ref, Store<EntityStore> store) {
 
         NPCEntity npc = (NPCEntity) store.getComponent(ref, NPCEntity.getComponentType());
+
+        // Entity filter
         if (npc != null) {
             String entityType = npc.getRoleName();
-
             if (entityType != null && entityType.startsWith("Kweebec")) {
+
                 TransformComponent transform =
                         (TransformComponent) store.getComponent(ref, TransformComponent.getComponentType());
-
-
                 if (transform != null) {
+                    // Entity Creation (Document Creation or Retrieval + Add Entity to Registry)
                     Vector3d pos = transform.getPosition();
                     Ref<EntityStore> reference = npc.getReference();
-
                     UUIDComponent uuidComponent =
                             (UUIDComponent) store.getComponent(ref, UUIDComponent.getComponentType());
                     UUID uuid = uuidComponent.getUuid();
 
-                    KweebecStorage.KweebecProfile profile = KweebecStorage.loadOrCreate(uuid);
-
+                    KweebecStorage.KweebecProfile profile =
+                            KweebecStorage.loadOrCreateInitialDoc(uuid);
                     if (profile.getName() == null || profile.getName().isEmpty()) {
                         String randomName = KweebecNameGenerator.getRandomName();
                         profile.setName(randomName);
-                        KweebecStorage.save(profile);
+                        KweebecStorage.saveInitialDoc(uuid, profile);
                     }
-
                     String kweebecName = profile.getName();
 
-                    KweebecRegistry.add(new KweebecData(reference, pos, kweebecName, uuid));
+                    KweebecRegistry.add(
+                            new KweebecData(reference, pos, kweebecName, uuid)
+                    );
                 }
             }
         }
     }
 
-    @Override
-    public void onEntityRemove(@Nonnull Ref<EntityStore> ref,
-                               @Nonnull RemoveReason reason,
-                               @Nonnull Store<EntityStore> store,
-                               @Nonnull CommandBuffer<EntityStore> commandBuffer) {
+    public static void entityRemoval(Ref<EntityStore> ref, Store<EntityStore> store) {
         KweebecData data = KweebecRegistry.get(ref);
         if (data != null) {
             KweebecRegistry.remove(ref);
-            UUID uuid = data.getUuid();
-            Path file = KweebecStorage.KWEEBEC_FOLDER.resolve(uuid.toString() + ".json");
-            try {
-                Files.deleteIfExists(file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            UUIDComponent uuidComponent =
+                    (UUIDComponent) store.getComponent(ref, UUIDComponent.getComponentType());
+            UUID uuid = uuidComponent.getUuid();
+            KweebecStorage.removeDoc(uuid);
         }
     }
 }

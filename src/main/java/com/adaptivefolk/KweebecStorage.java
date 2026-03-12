@@ -8,7 +8,7 @@ import java.nio.file.*;
 import java.util.UUID;
 
 public class KweebecStorage {
-    public static final Path KWEEBEC_FOLDER = Paths.get("mods", "Kweebecs");
+    private static final Path KWEEBEC_FOLDER = Paths.get("mods", "Adaptive_Folk_Kweebecs");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     static {
@@ -21,7 +21,7 @@ public class KweebecStorage {
         }
     }
 
-    public static KweebecProfile loadOrCreate(UUID uuid) {
+    public static KweebecProfile loadOrCreateInitialDoc(UUID uuid) {
         Path file = KWEEBEC_FOLDER.resolve(uuid.toString() + ".json");
 
         if (Files.exists(file)) {
@@ -35,16 +35,26 @@ public class KweebecStorage {
 
         String randomName = KweebecNameGenerator.getRandomName();
         KweebecProfile profile = new KweebecProfile(uuid, randomName);
-        save(profile);
+        saveInitialDoc(uuid, profile);
         return profile;
     }
 
-    public static void save(KweebecProfile profile) {
-        Path file = KWEEBEC_FOLDER.resolve(profile.getUuid().toString() + ".json");
+    public static void saveInitialDoc(UUID uuid, KweebecProfile profile) {
+        Path file = KWEEBEC_FOLDER.resolve(uuid.toString() + ".json");
         try {
             String json = GSON.toJson(profile);
             Files.writeString(file, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeDoc (UUID uuid) {
+        Path file = KWEEBEC_FOLDER.resolve(uuid.toString() + ".json");
+        try {
+            Files.deleteIfExists(file);
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
