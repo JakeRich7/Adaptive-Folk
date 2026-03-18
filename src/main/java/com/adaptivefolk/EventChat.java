@@ -53,19 +53,23 @@ public class EventChat {
         }
 
         // Chat with Kweebec if within player distance and player view
-        String response;
         String npcName = closest.getName();
 
-        try {
-            response = KweebecAiResponse.getResponse(playerMessage, npcName);
-        } catch (Exception e) {
-            response = KweebecFallbackResponse.getResponse(npcName);
+        KweebecAiResponse.getResponseAsync(playerMessage, npcName)
+                .thenAccept(aiResponse -> {
+                    // build the response here
+                    String response = npcName + ": " + aiResponse.strip();
+                    player.sendMessage(Message.raw(response));
+                    System.out.println(response);
+                })
+                .exceptionally(e -> {
+                    // fallback if AI fails
+                    String response = npcName + ": " + KweebecFallbackResponse.getResponse(npcName);
+                    player.sendMessage(Message.raw(response));
+                    System.out.println(response);
+                    return null;
+                });
         }
-        response = npcName + ": " + response;
-
-        player.sendMessage(Message.raw(response));
-        System.out.println(response);
-    }
 
     private static double normalizeRadians(double angle) {
         angle = angle % (2 * PI);

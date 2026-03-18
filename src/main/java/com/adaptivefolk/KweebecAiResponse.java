@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -22,12 +23,13 @@ public class KweebecAiResponse {
      * @param playerText The text the player says
      * @param npcName    The NPC's name
      * @return The AI response
-     * @throws Exception If the API call fails
      */
-    public static String getResponse(String playerText, String npcName) throws Exception {
+    public static CompletableFuture<String> getResponseAsync(String playerText, String npcName) {
         // Simple prompt
         String prompt = String.format(
-                "You are a Kweebec named %s from Hytale. Respond briefly and in-character to the player",
+                "You are a Kweebec named %s from Hytale. Respond in-character to the player *only*. " +
+                        "Do not repeat the player's words. Do not add any extra instructions, metadata, or commentary. " +
+                        "Return a single line response.\nPlayer: \"%s\"",
                 npcName, playerText
         );
 
@@ -49,11 +51,13 @@ public class KweebecAiResponse {
                 .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
                 .build();
 
-        // Send request
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
         // Parse response JSON
-        JsonObject obj = JsonParser.parseString(response.body()).getAsJsonObject();
-        return obj.get("response").getAsString();
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenApply(body -> {
+                    JsonObject obj = JsonParser.parseString(body).getAsJsonObject();
+                    System.out.println(obj);
+                    return obj.get("response").getAsString();
+                });
     }
 }
