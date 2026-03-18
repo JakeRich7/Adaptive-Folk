@@ -33,7 +33,7 @@ public class EventChat {
             if (data.getPosition() != null) {
                 double dx = data.getPosition().x - playerPos.x;
                 double dz = data.getPosition().z - playerPos.z;
-                double distanceXZ = Math.sqrt(dx*dx + dz*dz);
+                double distanceXZ = Math.sqrt(dx * dx + dz * dz);
 
                 // If Kweebec position is within player distance perform player head check
                 if (distanceXZ <= CHAT_DISTANCE) {
@@ -53,9 +53,18 @@ public class EventChat {
         }
 
         // Chat with Kweebec if within player distance and player view
-        if (closest != null) {
-            player.sendMessage(Message.raw("Hi! My name is " + closest.getName() + ". How are you?"));
+        String response;
+        String npcName = closest.getName();
+
+        try {
+            response = KweebecAiResponse.getResponse(playerMessage, npcName);
+        } catch (Exception e) {
+            response = KweebecFallbackResponse.getResponse(npcName);
         }
+        response = npcName + ": " + response;
+
+        player.sendMessage(Message.raw(response));
+        System.out.println(response);
     }
 
     private static double normalizeRadians(double angle) {
