@@ -9,6 +9,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.component.Ref;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static java.lang.Math.PI;
 
@@ -54,17 +55,25 @@ public class EventChat {
 
         // Chat with Kweebec if within player distance and player view
         String npcName = closest.getName();
+        UUID npcUUID = closest.getUuid();
+        KweebecStorage.appendMessage(npcUUID, "player", playerMessage);
 
-        KweebecAiResponse.getResponseAsync(playerMessage, npcName)
+        KweebecAiResponse.getResponseAsync(playerMessage, npcName, npcUUID)
                 .thenAccept(aiResponse -> {
-                    // build the response here
-                    String response = npcName + ": " + aiResponse.strip();
+                    // ai response
+                    String rawResponse = aiResponse.strip();
+                    String response = npcName + ": " + rawResponse;
                     player.sendMessage(Message.raw(response));
+                    System.out.println(response);
+                    KweebecStorage.appendMessage(npcUUID, npcName, rawResponse);
                 })
                 .exceptionally(e -> {
-                    // fallback if AI fails
-                    String response = npcName + ": " + KweebecFallbackResponse.getResponse(npcName);
+                    // fallback response if AI fails
+                    String rawResponse = KweebecFallbackResponse.getResponse(npcName);
+                    String response = npcName + ": " + rawResponse;
                     player.sendMessage(Message.raw(response));
+                    System.out.println(response);
+                    KweebecStorage.appendMessage(npcUUID, npcName, rawResponse);
                     return null;
                 });
         }

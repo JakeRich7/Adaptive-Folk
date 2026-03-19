@@ -34,7 +34,7 @@ public class PluginEntry extends JavaPlugin {
         if (KweebecAiResponse.hasModel()) {
             LOGGER.atInfo().log("Ollama model detected. Warming up...");
 
-            KweebecAiResponse.getResponseAsync("Hello!", "WarmupNPC")
+            KweebecAiResponse.getResponseWarmupAsync("Hello!", "WarmupNPC")
                     .thenAccept(response -> LOGGER.atInfo().log("Ollama warm-up completed"))
                     .exceptionally(e -> {
                         LOGGER.atWarning().log("Ollama warm-up failed: " + e.getMessage());

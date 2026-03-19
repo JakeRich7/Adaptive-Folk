@@ -6,6 +6,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import com.google.gson.JsonArray;
@@ -24,67 +25,108 @@ public class KweebecAiResponse {
 
     // This list 'prefers' models from top to bottom if multiple models are found, though ANY valid Ollama model can be used (just download that model only)
     private static final List<String> PREFERRED_MODELS = List.of(
-            "llama3.2:3b",         // Default: very capable, good speed
+            "gemma3:4b",           // Balanced medium model: good quality, moderate speed
+            "gemma3:1b",           // Fastest and lightest, suitable for low-end setups
+            "llama3.2:3b",         // Very capable, good speed
             "llama3.2:1b",         // Lightweight version: faster, still decent quality
-            "mistral:7b",          // Stronger midweight model, richer responses
             "qwen2.5:3b",          // Alternative balanced chat model
             "qwen2.5:7b",          // Larger Qwen variant, higher-quality dialogue
-            "gemma3:12b",          // Largest model (in this list): highest quality, heavy on resources
-            "gemma3:4b",           // Balanced medium model: good quality, moderate speed
-            "gemma3:1b"            // Fastest and lightest, suitable for low-end setups
+            "mistral:7b",          // Stronger midweight model, richer responses
+            "gemma3:12b"           // Largest model (in this list): highest quality, heavy on resources
     );
 
-    public static CompletableFuture<String> getResponseAsync(String playerText, String npcName) {
-        // Simple prompt
-        String prompt = String.format(
-                "You are %s, a Kweebec from Hytale.\n" +
-                        "You speak naturally, warmly, and simply. Try not to abbreviate words.\n" +
-                        "You must stay in character at all times.\n" +
-                        "\n" +
-                        "Rules:\n" +
-                        "- Be honest; if you don't know, say so.\n" +
-                        "- Do not explain yourself.\n" +
-                        "- Do not invent facts, numbers, or places.\n" +
-                        "- Speak as a living creature, not a narrator.\n" +
-                        "- Keep responses grounded and believable.\n" +
-                        "- Keep responses under 30 words.\n" +
-                        "- Do not repeat the player's words.\n" +
-                        "- Respond in English by default, but respond in another language if spoken to in that language.\n" +
-                        "- Do not add narrative detail. Only return the Kweebec's response.\n" +
-                        "- Respond with text only. No images.\n" +
-                        "\n" +
-                        "Player: \"%s\"\n" +
-                        "%s:",
-                npcName, playerText, npcName
+    public static CompletableFuture<String> generateMemorySummary(UUID npcUUID, String playerText) {
+        List<String> recentMemory = KweebecStorage.getRecentMessages(npcUUID, 500);
+        String memoryText = String.join("\n", recentMemory);
+
+        // Build a small summarization prompt for the AI
+        String summaryPrompt = String.format(
+                "Review the Conversation History and extract any relevant facts that would help the next AI agent respond (as an NPC) to the Player Message provided here:.\n" +
+                "Player Message: \"%s\"\n" +
+
+                "Only include information from provided Conversation History in your response if it is clearly related to the Player Message. Otherwise, return NONE\n" +
+                "Do not invent information.\n" +
+                "Keep your response to one short sentence.\n" +
+                "Do NOT directly respond to the Player Message. Your job is to return historical context or to return NONE" +
+                "Prefer returning NONE over weak or irrelevant responses." +
+                "Make sure your response is in plain text and has no extra quotation marks.\n\n" +
+
+                "Conversation History:\n%s\n" +
+                "Output: ",
+                playerText,
+                memoryText
         );
 
-        // Build JSON body
         JsonObject json = new JsonObject();
         json.addProperty("model", selectedModel);
-        json.addProperty("prompt", prompt);
+        json.addProperty("prompt", summaryPrompt);
         json.addProperty("stream", false);
 
         JsonObject options = new JsonObject();
-        options.addProperty("num_predict", 60);   // short response for speed
-        options.addProperty("temperature", 0.7);  // slight creativity
-        options.addProperty("repeat_penalty", 1.1);  // avoids weird looping
-        options.addProperty("top_p", 0.9);  // only uses the top 90% of words
+        options.addProperty("num_predict", 50);
+        options.addProperty("temperature", 0.5);
         json.add("options", options);
 
-        // Build HTTP request
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(OLLAMA_URL))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
                 .build();
 
-        // Parse response JSON
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
                 .thenApply(body -> {
                     JsonObject obj = JsonParser.parseString(body).getAsJsonObject();
-                    System.out.println(obj);
-                    return obj.get("response").getAsString();
+                    return obj.get("response").getAsString().trim();
+                });
+    }
+
+    public static CompletableFuture<String> getResponseAsync(String playerText, String npcName, UUID npcUUID) {
+        return generateMemorySummary(npcUUID, playerText)
+                .thenCompose(summary -> {
+                    String prompt = String.format(
+                            "You are %s, a Kweebec from Hytale. You have short fur. You are brown. You never move more than a few blocks.\n\n" +
+                            "Summary of past interactions (for context). This is background knowledge. Only use it if directly relevant.:\n%s\n\n" +
+                            "Speak warmly and simply.\n" +
+                            "Try not to abbreviate words.\n" +
+                            "Stay in character at all times.\n" +
+                            "Keep responses under 30 words.\n" +
+                            "Always respond in English UNLESS you are directly spoken to in another language\n" +
+                            "Make sure your response is in plain text and has no extra quotation marks.\n\n" +
+                            "Player says: \"%s\"\n" +
+                            "%s:",
+                            npcName,
+                            summary,
+                            playerText,
+                            npcName
+                    );
+
+                    System.out.println(summary);
+
+                    JsonObject json = new JsonObject();
+                    json.addProperty("model", selectedModel);
+                    json.addProperty("prompt", prompt);
+                    json.addProperty("stream", false);
+
+                    JsonObject options = new JsonObject();
+                    options.addProperty("num_predict", 60);
+                    options.addProperty("temperature", 0.7);
+                    options.addProperty("repeat_penalty", 1.1);
+                    options.addProperty("top_p", 0.9);
+                    json.add("options", options);
+
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create(OLLAMA_URL))
+                            .header("Content-Type", "application/json")
+                            .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
+                            .build();
+
+                    return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                            .thenApply(HttpResponse::body)
+                            .thenApply(body -> {
+                                JsonObject obj = JsonParser.parseString(body).getAsJsonObject();
+                                return obj.get("response").getAsString().trim();
+                            });
                 });
     }
 
@@ -134,5 +176,40 @@ public class KweebecAiResponse {
     public static boolean hasModel() {
         if (!modelChecked) initializeModel();
         return selectedModel != null;
+    }
+
+    public static CompletableFuture<String> getResponseWarmupAsync(String playerText, String npcName) {
+        // Simple prompt
+        String prompt = String.format(
+                "This is a message to get you warmed up."
+        );
+
+        // Build JSON body
+        JsonObject json = new JsonObject();
+        json.addProperty("model", selectedModel);
+        json.addProperty("prompt", prompt);
+        json.addProperty("stream", false);
+
+        JsonObject options = new JsonObject();
+        options.addProperty("num_predict", 60);   // short response for speed
+        options.addProperty("temperature", 0.7);  // slight creativity
+        options.addProperty("repeat_penalty", 1.1);  // avoids weird looping
+        options.addProperty("top_p", 0.9);  // only uses the top 90% of words
+        json.add("options", options);
+
+        // Build HTTP request
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(OLLAMA_URL))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
+                .build();
+
+        // Parse response JSON
+        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenApply(body -> {
+                    JsonObject obj = JsonParser.parseString(body).getAsJsonObject();
+                    return obj.get("response").getAsString();
+                });
     }
 }
