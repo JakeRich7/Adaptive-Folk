@@ -31,12 +31,18 @@ public class PluginEntry extends JavaPlugin {
         ComponentRegistryProxy<EntityStore> registry = this.getEntityStoreRegistry();
         registry.registerSystem(new ListenerSpawn());
 
-        LOGGER.atInfo().log("Warming up Ollama model...");
-        KweebecAiResponse.getResponseAsync("Hello!", "WarmupNPC")
-                .thenAccept(response -> LOGGER.atInfo().log("Ollama warm-up completed"))
-                .exceptionally(e -> {
-                    LOGGER.atWarning().log("Ollama warm-up failed: " + e.getMessage());
-                    return null;
-                });
+        if (KweebecAiResponse.hasModel()) {
+            LOGGER.atInfo().log("Ollama model detected. Warming up...");
+
+            KweebecAiResponse.getResponseAsync("Hello!", "WarmupNPC")
+                    .thenAccept(response -> LOGGER.atInfo().log("Ollama warm-up completed"))
+                    .exceptionally(e -> {
+                        LOGGER.atWarning().log("Ollama warm-up failed: " + e.getMessage());
+                        return null;
+                    });
+
+        } else {
+            LOGGER.atWarning().log("No Ollama model detected. Using fallback responses only.");
+        }
     }
 }

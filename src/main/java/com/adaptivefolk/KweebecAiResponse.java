@@ -4,44 +4,71 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class KweebecAiResponse {
 
     private static final String OLLAMA_URL = "http://127.0.0.1:11434/api/generate";
-    private static final String MODEL_NAME = "phi3:mini"; // fast local AI model
-
-    // Make client static so it can be used in the static method
+    private static final String TAGS_URL = "http://127.0.0.1:11434/api/tags";
     private static final HttpClient client = HttpClient.newHttpClient();
 
-    /**
-     * Sends player text to Ollama and returns the AI response.
-     *
-     * @param playerText The text the player says
-     * @param npcName    The NPC's name
-     * @return The AI response
-     */
+    private static String selectedModel = null;
+    private static boolean modelChecked = false;
+
+    // This list 'prefers' models from top to bottom if multiple models are found, though ANY valid Ollama model can be used (just download that model only)
+    private static final List<String> PREFERRED_MODELS = List.of(
+            "llama3.2:3b",         // Default: very capable, good speed
+            "llama3.2:1b",         // Lightweight version: faster, still decent quality
+            "mistral:7b",          // Stronger midweight model, richer responses
+            "qwen2.5:3b",          // Alternative balanced chat model
+            "qwen2.5:7b",          // Larger Qwen variant, higher-quality dialogue
+            "gemma3:12b",          // Largest model (in this list): highest quality, heavy on resources
+            "gemma3:4b",           // Balanced medium model: good quality, moderate speed
+            "gemma3:1b"            // Fastest and lightest, suitable for low-end setups
+    );
+
     public static CompletableFuture<String> getResponseAsync(String playerText, String npcName) {
         // Simple prompt
         String prompt = String.format(
-                "You are a Kweebec named %s from Hytale. Respond in-character to the player *only*. " +
-                        "Do not repeat the player's words. Do not add any extra instructions, metadata, or commentary. " +
-                        "Return a single line response.\nPlayer: \"%s\"",
-                npcName, playerText
+                "You are %s, a Kweebec from Hytale.\n" +
+                        "You speak naturally, warmly, and simply. Try not to abbreviate words.\n" +
+                        "You must stay in character at all times.\n" +
+                        "\n" +
+                        "Rules:\n" +
+                        "- Be honest; if you don't know, say so.\n" +
+                        "- Do not explain yourself.\n" +
+                        "- Do not invent facts, numbers, or places.\n" +
+                        "- Speak as a living creature, not a narrator.\n" +
+                        "- Keep responses grounded and believable.\n" +
+                        "- Keep responses under 30 words.\n" +
+                        "- Do not repeat the player's words.\n" +
+                        "- Respond in English by default, but respond in another language if spoken to in that language.\n" +
+                        "- Do not add narrative detail. Only return the Kweebec's response.\n" +
+                        "- Respond with text only. No images.\n" +
+                        "\n" +
+                        "Player: \"%s\"\n" +
+                        "%s:",
+                npcName, playerText, npcName
         );
 
         // Build JSON body
         JsonObject json = new JsonObject();
-        json.addProperty("model", MODEL_NAME);
+        json.addProperty("model", selectedModel);
         json.addProperty("prompt", prompt);
         json.addProperty("stream", false);
 
         JsonObject options = new JsonObject();
         options.addProperty("num_predict", 60);   // short response for speed
         options.addProperty("temperature", 0.7);  // slight creativity
+        options.addProperty("repeat_penalty", 1.1);  // avoids weird looping
+        options.addProperty("top_p", 0.9);  // only uses the top 90% of words
         json.add("options", options);
 
         // Build HTTP request
@@ -59,5 +86,53 @@ public class KweebecAiResponse {
                     System.out.println(obj);
                     return obj.get("response").getAsString();
                 });
+    }
+
+    private static void initializeModel() {
+        modelChecked = true;
+
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(TAGS_URL))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+
+            JsonArray models = json.getAsJsonArray("models");
+
+            List<String> available = new ArrayList<>();
+            for (JsonElement el : models) {
+                JsonObject obj = el.getAsJsonObject();
+                available.add(obj.get("name").getAsString());
+            }
+
+            // Preferred match
+            for (String preferred : PREFERRED_MODELS) {
+                if (available.contains(preferred)) {
+                    selectedModel = preferred;
+                    break;
+                }
+            }
+
+            // Fallback to any
+            if (selectedModel == null && !available.isEmpty()) {
+                selectedModel = available.getFirst();
+            }
+
+            if (selectedModel != null) {
+                System.out.println("[AI] Using model: " + selectedModel);
+            }
+        } catch (Exception e) {
+            selectedModel = null;
+            System.out.println("[AI] Failed to detect models: " + e.getMessage());
+        }
+    }
+
+    public static boolean hasModel() {
+        if (!modelChecked) initializeModel();
+        return selectedModel != null;
     }
 }

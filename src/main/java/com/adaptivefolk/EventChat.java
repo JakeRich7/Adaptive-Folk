@@ -60,13 +60,11 @@ public class EventChat {
                     // build the response here
                     String response = npcName + ": " + aiResponse.strip();
                     player.sendMessage(Message.raw(response));
-                    System.out.println(response);
                 })
                 .exceptionally(e -> {
                     // fallback if AI fails
                     String response = npcName + ": " + KweebecFallbackResponse.getResponse(npcName);
                     player.sendMessage(Message.raw(response));
-                    System.out.println(response);
                     return null;
                 });
         }
