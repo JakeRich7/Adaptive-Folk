@@ -56,24 +56,36 @@ public class EventChat {
         // Chat with Kweebec if within player distance and player view
         String npcName = closest.getName();
         UUID npcUUID = closest.getUuid();
-        KweebecStorage.appendMessage(npcUUID, "player", playerMessage);
+        String playerName = player.getUsername();
 
         KweebecAiResponse.getResponseAsync(playerMessage, npcName, npcUUID)
                 .thenAccept(aiResponse -> {
-                    // ai response
                     String rawResponse = aiResponse.strip();
                     String response = npcName + ": " + rawResponse;
                     player.sendMessage(Message.raw(response));
                     System.out.println(response);
-                    KweebecStorage.appendMessage(npcUUID, npcName, rawResponse);
+                    KweebecStorage.appendInteraction(
+                            npcUUID,
+                            playerName,
+                            playerMessage,
+                            npcName,
+                            rawResponse
+                    );
                 })
                 .exceptionally(e -> {
-                    // fallback response if AI fails
                     String rawResponse = KweebecFallbackResponse.getResponse(npcName);
                     String response = npcName + ": " + rawResponse;
+
                     player.sendMessage(Message.raw(response));
                     System.out.println(response);
-                    KweebecStorage.appendMessage(npcUUID, npcName, rawResponse);
+
+                    KweebecStorage.appendInteraction(
+                            npcUUID,
+                            playerName,
+                            playerMessage,
+                            npcName,
+                            rawResponse
+                    );
                     return null;
                 });
         }

@@ -63,10 +63,22 @@ public class KweebecStorage {
         }
     }
 
-    public static void appendMessage(UUID uuid, String role, String message) {
+    public static void appendInteraction(UUID uuid, String playerName, String playerMessage, String npcName, String npcMessage) {
         Path file = KWEEBEC_FOLDER.resolve(uuid.toString() + ".jsonl");
-        String sanitized = message.replace("\"", "\\\""); // simple escape
-        String line = String.format("{\"name\":\"%s\",\"message\":\"%s\"}%n", role, sanitized);
+
+        String sanitizedPlayerMsg = playerMessage.replace("\"", "\\\"");
+        String sanitizedNpcMsg = npcMessage.replace("\"", "\\\"");
+
+        long timestamp = System.currentTimeMillis();
+
+        String line = String.format(
+                "{\"player\":\"%s\",\"playerMessage\":\"%s\",\"npc\":\"%s\",\"npcMessage\":\"%s\",\"timestamp\":%d}%n",
+                playerName,
+                sanitizedPlayerMsg,
+                npcName,
+                sanitizedNpcMsg,
+                timestamp
+        );
 
         try {
             Files.writeString(file, line, StandardOpenOption.CREATE, StandardOpenOption.APPEND);

@@ -25,10 +25,10 @@ public class KweebecAiResponse {
 
     // This list 'prefers' models from top to bottom if multiple models are found, though ANY valid Ollama model can be used (just download that model only)
     private static final List<String> PREFERRED_MODELS = List.of(
-            "gemma3:4b",           // Balanced medium model: good quality, moderate speed
-            "gemma3:1b",           // Fastest and lightest, suitable for low-end setups
             "llama3.2:3b",         // Very capable, good speed
             "llama3.2:1b",         // Lightweight version: faster, still decent quality
+            "gemma3:4b",           // Balanced medium model: good quality, moderate speed
+            "gemma3:1b",           // Fastest and lightest, suitable for low-end setups
             "qwen2.5:3b",          // Alternative balanced chat model
             "qwen2.5:7b",          // Larger Qwen variant, higher-quality dialogue
             "mistral:7b",          // Stronger midweight model, richer responses
@@ -36,23 +36,14 @@ public class KweebecAiResponse {
     );
 
     public static CompletableFuture<String> generateMemorySummary(UUID npcUUID, String playerText) {
-        List<String> recentMemory = KweebecStorage.getRecentMessages(npcUUID, 500);
+        List<String> recentMemory = KweebecStorage.getRecentMessages(npcUUID, 250);
         String memoryText = String.join("\n", recentMemory);
 
-        // Build a small summarization prompt for the AI
         String summaryPrompt = String.format(
-                "Review the Conversation History and extract any relevant facts that would help the next AI agent respond (as an NPC) to the Player Message provided here:.\n" +
-                "Player Message: \"%s\"\n" +
-
-                "Only include information from provided Conversation History in your response if it is clearly related to the Player Message. Otherwise, return NONE\n" +
-                "Do not invent information.\n" +
-                "Keep your response to one short sentence.\n" +
-                "Do NOT directly respond to the Player Message. Your job is to return historical context or to return NONE" +
-                "Prefer returning NONE over weak or irrelevant responses." +
-                "Make sure your response is in plain text and has no extra quotation marks.\n\n" +
-
-                "Conversation History:\n%s\n" +
-                "Output: ",
+                "Please search through these logs:\n%s\n\n" +
+                "Can you return a one sentence detailed summary that contains any data from these logs that is directly relevant in responding to this prompt: \n'%s'\n\n" +
+                "You MUST only return information from these logs. Do NOT make anything up. Return nothing rather than returning something that is not in these logs." +
+                "Your return should not have any extra quotation marks or newlines",
                 playerText,
                 memoryText
         );
@@ -90,18 +81,18 @@ public class KweebecAiResponse {
                             "Speak warmly and simply.\n" +
                             "Try not to abbreviate words.\n" +
                             "Stay in character at all times.\n" +
-                            "Keep responses under 30 words.\n" +
                             "Always respond in English UNLESS you are directly spoken to in another language\n" +
-                            "Make sure your response is in plain text and has no extra quotation marks.\n\n" +
+                            "Keep responses under 30 words and in one sentence.\n" +
+                            "Make sure your response is one is in plain text and has no extra quotation marks.\n\n" +
                             "Player says: \"%s\"\n" +
-                            "%s:",
+                            "%s: ",
                             npcName,
                             summary,
                             playerText,
                             npcName
                     );
 
-                    System.out.println(summary);
+                    System.out.println("Summary: " + summary);
 
                     JsonObject json = new JsonObject();
                     json.addProperty("model", selectedModel);
