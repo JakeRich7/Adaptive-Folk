@@ -93,7 +93,6 @@ public class KweebecAiResponse {
                             npcName
                     );
 
-                    System.out.println("Role: " + npcRoleName);
                     System.out.println("Summary: " + summary);
 
                     JsonObject json = new JsonObject();

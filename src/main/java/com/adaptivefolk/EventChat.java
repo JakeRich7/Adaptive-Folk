@@ -53,6 +53,10 @@ public class EventChat {
             }
         }
 
+        if (closest == null) {
+            return;
+        }
+
         String npcName = closest.getName();
         String npcRoleName = closest.getRoleName();
         UUID npcUUID = closest.getUuid();
