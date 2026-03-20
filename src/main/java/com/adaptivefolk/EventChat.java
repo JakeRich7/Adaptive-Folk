@@ -4,6 +4,8 @@ import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.component.Ref;
@@ -67,7 +69,9 @@ public class EventChat {
                 .thenAccept(aiResponse -> {
                     String rawResponse = aiResponse.strip();
                     String response = npcName + ": " + rawResponse;
-                    player.sendMessage(Message.raw(response));
+                    Universe.get().getPlayers().forEach(p -> {
+                        p.sendMessage(Message.raw(response));
+                    });
                     System.out.println(response);
                     kweebecFacePlayer(kweebecTransformComponent, playerPos);
                     KweebecStorage.appendInteraction(
@@ -81,8 +85,9 @@ public class EventChat {
                 .exceptionally(e -> {
                     String rawResponse = KweebecFallbackResponse.getResponse();
                     String response = npcName + ": " + rawResponse;
-
-                    player.sendMessage(Message.raw(response));
+                    Universe.get().getPlayers().forEach(p -> {
+                        p.sendMessage(Message.raw(response));
+                    });
                     System.out.println(response);
                     kweebecFacePlayer(kweebecTransformComponent, playerPos);
                     KweebecStorage.appendInteraction(
