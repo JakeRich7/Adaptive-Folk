@@ -26,6 +26,7 @@ public class EventSpawnRemoval {
                     // Entity Creation (Document Creation or Retrieval + Add Entity to Registry)
                     Vector3d pos = transform.getPosition();
                     Ref<EntityStore> reference = npc.getReference();
+                    String role = npc.getRoleName();
                     UUIDComponent uuidComponent =
                             (UUIDComponent) store.getComponent(ref, UUIDComponent.getComponentType());
                     UUID uuid = uuidComponent.getUuid();
@@ -37,10 +38,10 @@ public class EventSpawnRemoval {
                         profile.setName(randomName);
                         KweebecStorage.saveInitialDoc(uuid, profile);
                     }
-                    String kweebecName = profile.getName();
+                    String name = profile.getName();
 
                     KweebecRegistry.add(
-                            new KweebecData(reference, pos, kweebecName, uuid)
+                            new KweebecData(reference, pos, name, role, uuid)
                     );
                 }
             }

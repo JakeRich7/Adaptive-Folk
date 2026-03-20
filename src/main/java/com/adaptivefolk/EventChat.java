@@ -54,11 +54,12 @@ public class EventChat {
         }
 
         String npcName = closest.getName();
+        String npcRoleName = closest.getRoleName();
         UUID npcUUID = closest.getUuid();
         String playerName = player.getUsername();
         TransformComponent kweebecTransformComponent = closest.getReference().getStore().getComponent(closest.getReference(), TransformComponent.getComponentType());
 
-        KweebecAiResponse.getResponseAsync(playerMessage, npcName, npcUUID)
+        KweebecAiResponse.getResponseAsync(playerMessage, npcName, npcRoleName, npcUUID)
                 .thenAccept(aiResponse -> {
                     String rawResponse = aiResponse.strip();
                     String response = npcName + ": " + rawResponse;

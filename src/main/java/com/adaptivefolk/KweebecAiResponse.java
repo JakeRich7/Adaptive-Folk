@@ -72,11 +72,11 @@ public class KweebecAiResponse {
                 });
     }
 
-    public static CompletableFuture<String> getResponseAsync(String playerText, String npcName, UUID npcUUID) {
+    public static CompletableFuture<String> getResponseAsync(String playerText, String npcName, String npcRoleName, UUID npcUUID) {
         return generateMemorySummary(npcUUID, playerText)
                 .thenCompose(summary -> {
                     String prompt = String.format(
-                            "You are %s, a Kweebec from Hytale. You have short fur. Your skin color is an earthy tone. You never move more than a few blocks.\n\n" +
+                            "You are %s, a Kweebec %s from Hytale. You have short fur. Your skin color is an earthy tone. You never move more than a few blocks.\n\n" +
                             "Summary of past interactions (for context). This is background knowledge. Only use it if directly relevant.:\n%s\n\n" +
                             "Speak warmly and simply.\n" +
                             "Try not to abbreviate words.\n" +
@@ -87,11 +87,13 @@ public class KweebecAiResponse {
                             "Player says: \"%s\"\n" +
                             "%s: ",
                             npcName,
+                            npcRoleName,
                             summary,
                             playerText,
                             npcName
                     );
 
+                    System.out.println("Role: " + npcRoleName);
                     System.out.println("Summary: " + summary);
 
                     JsonObject json = new JsonObject();
