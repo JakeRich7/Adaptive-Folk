@@ -76,7 +76,7 @@ public class KweebecAiResponse {
         return generateMemorySummary(npcUUID, playerText)
                 .thenCompose(summary -> {
                     String prompt = String.format(
-                            "You are %s, a Kweebec from Hytale. You have short fur. You are brown. You never move more than a few blocks.\n\n" +
+                            "You are %s, a Kweebec from Hytale. You have short fur. Your skin color is an earthy tone. You never move more than a few blocks.\n\n" +
                             "Summary of past interactions (for context). This is background knowledge. Only use it if directly relevant.:\n%s\n\n" +
                             "Speak warmly and simply.\n" +
                             "Try not to abbreviate words.\n" +

@@ -53,10 +53,10 @@ public class EventChat {
             }
         }
 
-        // Chat with Kweebec if within player distance and player view
         String npcName = closest.getName();
         UUID npcUUID = closest.getUuid();
         String playerName = player.getUsername();
+        TransformComponent kweebecTransformComponent = closest.getReference().getStore().getComponent(closest.getReference(), TransformComponent.getComponentType());
 
         KweebecAiResponse.getResponseAsync(playerMessage, npcName, npcUUID)
                 .thenAccept(aiResponse -> {
@@ -64,6 +64,7 @@ public class EventChat {
                     String response = npcName + ": " + rawResponse;
                     player.sendMessage(Message.raw(response));
                     System.out.println(response);
+                    kweebecFacePlayer(kweebecTransformComponent, playerPos);
                     KweebecStorage.appendInteraction(
                             npcUUID,
                             playerName,
@@ -78,7 +79,7 @@ public class EventChat {
 
                     player.sendMessage(Message.raw(response));
                     System.out.println(response);
-
+                    kweebecFacePlayer(kweebecTransformComponent, playerPos);
                     KweebecStorage.appendInteraction(
                             npcUUID,
                             playerName,
@@ -95,5 +96,15 @@ public class EventChat {
         if (angle > PI) angle -= 2 * PI;
         if (angle < -PI) angle += 2 * PI;
         return angle;
+    }
+
+    private static void kweebecFacePlayer(TransformComponent npcTransform, Vector3d playerPos) {
+        if (npcTransform != null && playerPos != null) {
+            Vector3d npcPos = npcTransform.getPosition();
+            double dx = playerPos.getX() - npcPos.getX();
+            double dz = playerPos.getZ() - npcPos.getZ();
+            float yaw = (float) (Math.atan2(dx, dz) + Math.PI);
+            npcTransform.setRotation(new Vector3f(0,yaw,0));
+        }
     }
 }
