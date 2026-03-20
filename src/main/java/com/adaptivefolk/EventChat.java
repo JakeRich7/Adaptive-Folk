@@ -74,7 +74,7 @@ public class EventChat {
                     );
                 })
                 .exceptionally(e -> {
-                    String rawResponse = KweebecFallbackResponse.getResponse(npcName);
+                    String rawResponse = KweebecFallbackResponse.getResponse();
                     String response = npcName + ": " + rawResponse;
 
                     player.sendMessage(Message.raw(response));
