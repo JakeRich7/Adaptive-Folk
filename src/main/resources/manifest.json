@@ -1,7 +1,7 @@
 {
     "Group": "com.adaptiveFolk",
     "Name": "Adaptive Folk",
-    "Version": "0.3.3",
+    "Version": "0.3.4",
     "Description": "An example plugin for HyTale!",
     "Authors": [
         {
@@ -9,7 +9,7 @@
         }
     ],
     "Website": "example.org",
-    "ServerVersion": "2026.02.17-255364b8e",
+    "ServerVersion": "2026.02.19-1a311a592",
     "Dependencies": {
         
     },
