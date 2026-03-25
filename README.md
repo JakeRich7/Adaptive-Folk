@@ -83,11 +83,15 @@ For Example:
 - Any LLM from the Ollama library above will work IF your hardware supports it. I found my RTX 3060 Ti (8gb VRAM) to run very well with the `llama3.2:3b` model listed above. VRAM will likely be your bottleneck here
 - Guardrails vary from model to model! I found `llama3.2:3b` to be a very good model for safe responses
 
+---
+
 ## Design Principles
 - Immersion first (names + smart and in-character responses + memory)
 - Local AI only (privacy + zero cost + performance)
 - Graceful degradation (always functional)
 - Minimal latency
+
+---
 
 ## Special Thanks:
 - Ollama
