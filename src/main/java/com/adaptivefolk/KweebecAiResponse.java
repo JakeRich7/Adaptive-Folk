@@ -8,18 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class KweebecAiResponse {
-
     private static final String OLLAMA_URL = "http://127.0.0.1:11434/api/generate";
     private static final String TAGS_URL = "http://127.0.0.1:11434/api/tags";
     private static final HttpClient client = HttpClient.newHttpClient();
-
     private static String selectedModel = null;
     private static boolean modelChecked = false;
 
@@ -170,13 +167,11 @@ public class KweebecAiResponse {
         return selectedModel != null;
     }
 
-    public static CompletableFuture<String> getResponseWarmupAsync(String playerText, String npcName) {
-        // Simple prompt
+    public static CompletableFuture<String> getResponseWarmupAsync() {
         String prompt = String.format(
                 "This is a message to get you warmed up."
         );
 
-        // Build JSON body
         JsonObject json = new JsonObject();
         json.addProperty("model", selectedModel);
         json.addProperty("prompt", prompt);
@@ -189,14 +184,12 @@ public class KweebecAiResponse {
         options.addProperty("top_p", 0.9);  // only uses the top 90% of words
         json.add("options", options);
 
-        // Build HTTP request
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(OLLAMA_URL))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
                 .build();
 
-        // Parse response JSON
         return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(HttpResponse::body)
                 .thenApply(body -> {

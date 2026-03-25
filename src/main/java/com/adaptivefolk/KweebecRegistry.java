@@ -2,7 +2,6 @@ package com.adaptivefolk;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

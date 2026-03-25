@@ -6,7 +6,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import java.util.UUID;
 
 public class KweebecData {
-
     private final Ref<EntityStore> reference;
     private Vector3d position;
     private final String name;

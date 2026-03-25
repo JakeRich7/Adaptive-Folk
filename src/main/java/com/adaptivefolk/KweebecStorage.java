@@ -2,7 +2,6 @@ package com.adaptivefolk;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.*;
@@ -22,7 +21,6 @@ public class KweebecStorage {
         }
     }
 
-    // ================== Profile Methods ==================
     public static KweebecProfile loadOrCreateInitialDoc(UUID uuid) {
         Path file = KWEEBEC_FOLDER.resolve(uuid.toString() + ".json");
 
@@ -65,10 +63,8 @@ public class KweebecStorage {
 
     public static void appendInteraction(UUID uuid, String playerName, String playerMessage, String npcName, String npcMessage) {
         Path file = KWEEBEC_FOLDER.resolve(uuid.toString() + ".jsonl");
-
         String sanitizedPlayerMsg = playerMessage.replace("\"", "\\\"");
         String sanitizedNpcMsg = npcMessage.replace("\"", "\\\"");
-
         long timestamp = System.currentTimeMillis();
 
         String line = String.format(
@@ -116,7 +112,6 @@ public class KweebecStorage {
                 pointer--;
             }
 
-            // Add the first line (if file didn't end with \n)
             if (sb.length() > 0) {
                 deque.addFirst(sb.reverse().toString());
                 if (deque.size() > limit) deque.removeLast();

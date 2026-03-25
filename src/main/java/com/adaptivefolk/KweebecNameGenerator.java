@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class KweebecNameGenerator {
-
     private static final List<String> NAMES = new ArrayList<>();
     private static final Random RANDOM = new Random();
 

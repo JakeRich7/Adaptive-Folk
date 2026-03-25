@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Random;
 
 public class KweebecFallbackResponse {
-
     private static final List<String> FALLBACKS = List.of(
             "You look very nice.",
             "Do you grow into a tree too?",

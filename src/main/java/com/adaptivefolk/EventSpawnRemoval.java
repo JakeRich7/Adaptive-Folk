@@ -7,12 +7,10 @@ import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
-
 import java.util.UUID;
 
 public class EventSpawnRemoval {
     public static void entitySpawn(Ref<EntityStore> ref, Store<EntityStore> store) {
-
         NPCEntity npc = (NPCEntity) store.getComponent(ref, NPCEntity.getComponentType());
 
         // Entity filter
