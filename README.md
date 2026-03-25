@@ -36,12 +36,12 @@ For Example:
 - Low-latency (typically under 2 seconds)
 
 ### Persistent Memory System
-- NPC conversation history stored in JSONL documents (Path to AI memory stored here: `(world)/mods/Adaptive_Folk_Kweebecs)`
+- NPC conversation history stored in JSONL documents (Path to AI memory stored here: `(world)/mods/Adaptive_Folk_Kweebecs`)
   - Summarized by 'Summarizer AI Agent' to give context to 'Kweebec AI Agent' to use
 - NPCs can reference previous interactions with multiple players
 
 ### Graceful Fallback Mode
-- If AI is not installed (Ollama + any LLM) Kweebec still retain their new name and respond using simple fallback responses.
+- If AI is not installed (Ollama + any AI LLM) Kweebec still retain their new name and respond using simple fallback responses.
   
 ---
 
@@ -57,7 +57,7 @@ For Example:
 
 ### Full Experience (Names, AI-Powered Kweebec Responses, Conversation Memory)
 - Place .jar in Hytale 'Mods' folder
-- Install and run Ollama Open-source software (https://ollama.com/download)
+- Install and run Ollama Open-source software (https://ollama.com/download). This is the software that connects the mod to your local AI
 - Use any CLI (e.g. powershell or command line) to pull a model for Ollama to use `ollama pull llama3.2:3b`
   - (Optional) Substitute `llama3.2:3b` with ANY available model (https://ollama.com/library)
 - Launch Hytale, select Adaptive Folk mod, and speak to any Kweebec!
@@ -99,3 +99,32 @@ For Example:
 - https://hytalemodding.dev/en/docs
 - https://hytale.limetta.dev/
 - Scheletro
+
+## FAQ:
+### Would I like to work for Hytale? (Shameless Plug)
+Yes Yes YES!!! That would be another dream come true. I am already a Senior Software Engineer. This would just be moving me from where I am now to somewhere I can really sink my passion into (Hytale being one of my top favorite games of all time AS IT IS).
+
+### Can Kweebec remember interactions with multiple players?
+Yes. Kweebec can reference interactions across different players.
+
+### What AI models are supported?
+Any model supported by Ollama should work, as long as your hardware can handle it.
+
+### What affects performance?
+Performance depends primarily on:
+- Your CPU/GPU
+- Available VRAM
+- The size of the model you are running
+
+Smaller models generally respond faster. Pay attention to the 'b' size. The higher the 'b' the more powerful and resource intensive the model typically is (e.g. '1b' is much more performant than a '3b' model).
+
+### Why is a Kweebec not responding with AI?
+- Ollama is not installed and running
+- No model is installed
+
+In these cases, basic fallback responses will be used.
+
+### Is this safe to use?
+- Ollama is Open-source
+- All AI runs locally on your machine. No data is sent externally.
+- The AI models I tested have had good guardrails in place BUT there is always some risk of AI responding poorly.
