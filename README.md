@@ -108,9 +108,6 @@ For Example:
 ---
 
 ## FAQ:
-### Would I like to work for Hytale? (Shameless Plug)
-Yes Yes YES!!! That would be another dream come true. I am already a Senior Software Engineer. This would just be moving me from where I am now to somewhere I can really sink my passion into (Hytale being one of my top favorite games of all time AS IT IS).
-
 ### Can Kweebec remember interactions with multiple players?
 Yes. Kweebec can reference interactions across different players.
 
