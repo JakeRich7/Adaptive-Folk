@@ -111,7 +111,7 @@ For Example:
 ### Can Kweebec remember interactions with multiple players?
 Yes. Kweebec can reference interactions across different players.
 
-### What AI models are supported?
+### Which AI models are supported?
 Any model supported by Ollama should work, as long as your hardware can handle it.
 
 ### What affects performance?
