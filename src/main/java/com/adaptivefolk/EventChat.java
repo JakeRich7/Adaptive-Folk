@@ -1,7 +1,8 @@
 package com.adaptivefolk;
 
-import com.hypixel.hytale.math.vector.Vector3d;
-import com.hypixel.hytale.math.vector.Vector3f;
+import com.hypixel.hytale.math.vector.Rotation3f;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
@@ -16,7 +17,7 @@ public class EventChat {
     private static final double CHAT_DISTANCE = 5.0;
     private static final int MAX_FACING = 90;
 
-    public static void UpdatePositionsAndChat(EntityStore store, Map<Ref<EntityStore>, KweebecData> kweebecs, Vector3d playerPos, Vector3f playerHeadRotation, PlayerRef player, String playerMessage) {
+    public static void UpdatePositionsAndChat(EntityStore store, Map<Ref<EntityStore>, KweebecData> kweebecs, Vector3d playerPos, Rotation3f playerHeadRotation, PlayerRef player, String playerMessage) {
         KweebecData closest = null;
         double closestDistance = Double.MAX_VALUE;
 
@@ -108,10 +109,10 @@ public class EventChat {
     private static void kweebecFacePlayer(TransformComponent npcTransform, Vector3d playerPos) {
         if (npcTransform != null && playerPos != null) {
             Vector3d npcPos = npcTransform.getPosition();
-            double dx = playerPos.getX() - npcPos.getX();
-            double dz = playerPos.getZ() - npcPos.getZ();
+            double dx = playerPos.x() - npcPos.x();
+            double dz = playerPos.z() - npcPos.z();
             float yaw = (float) (Math.atan2(dx, dz) + Math.PI);
-            npcTransform.setRotation(new Vector3f(0,yaw,0));
+            npcTransform.setRotation(new Rotation3f(0,yaw,0));
         }
     }
 }
